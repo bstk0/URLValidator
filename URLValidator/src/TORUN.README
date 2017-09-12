@@ -1,0 +1,4 @@
+[20/07/17] Note da Stefanini - Eclipse:
+
+set path=C:\Program Files\Java\jre1.8.0_111\bin;%PATH%
+java -jar URLValidator.jar
