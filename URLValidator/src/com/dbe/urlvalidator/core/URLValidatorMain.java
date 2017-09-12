@@ -54,7 +54,11 @@ public class URLValidatorMain {
     	lista.add(new Services("FIORI","FIORI.com PRD","https://fiori.gerdau.com/"));
     	lista.add(new Services("FIORI","FIORI.net QAS","https://fioriq.gerdau.net/"));
     	lista.add(new Services("FIORI","FIORI.net PRD","https://fiori.gerdau.net/"));
-    	
+
+    	//CE
+    	lista.add(new Services("CE","CE DEV","http://ced.gerdau.net/"));
+    	lista.add(new Services("CE","CE QAS","https://ceq.gerdau.net/"));
+    	lista.add(new Services("CE","CE PRD","https://ce.gerdau.net/"));
     	    	
     	for (int i = 0; i < lista.size(); i++) {
     		srv = lista.get(i);
