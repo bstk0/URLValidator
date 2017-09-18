@@ -3,13 +3,25 @@ package com.dbe.urlvalidator.core;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.dbe.urlvalidator.entity.Services;
+import com.dbe.urlvalidator.util.UrlValidatorUtil;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class URLValidatorMain {
 
@@ -23,6 +35,8 @@ public class URLValidatorMain {
 		System.out.println("main");
 		try {
 			new URLValidatorMain().URLTest();
+			new URLValidatorMain().getUptimeApiData();
+			// OK - new URLValidatorMain().ReadinTXTFile();
 			date = new Date();
 			System.out.println("FIM: " + dateFormat.format(date)); //2016/11/16 12:08:43
 		} catch (Exception e) {
@@ -125,4 +139,104 @@ public class URLValidatorMain {
 
 	}
 
+	public void getUptimeApiData() {
+		
+		OkHttpClient client = new OkHttpClient();
+		 
+		//MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
+		//MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded; charset=ISO-8859-1");
+		//MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded; charset=windows-1251");
+		MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded; charset=utf-8");
+		//MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+		//MediaType mediaType = MediaType.parse("application/json; charset=ISO-8859-1");
+		RequestBody body = RequestBody.create(mediaType, "api_key=u220363-f1c63a7c374556cf0d293a1b&format=json&logs=1");
+		Request request = new Request.Builder()
+		  .url("https://api.uptimerobot.com/v2/getMonitors")
+		  .post(body)
+		  .addHeader("content-type", mediaType.toString())
+		  .addHeader("cache-control", "no-cache")
+		  .build();
+
+		//.addHeader("content-type", "application/x-www-form-urlencoded")
+		try {
+			Response response = client.newCall(request).execute();
+			System.out.println("UPTIME - getMonitors:"+ response.toString() );
+			//System.out.println("UPTIME - BODY:" + response.body().string() );
+			//TODO : melhorar o response
+			getJsonResponse(response.body().string());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+
+	public void getJsonResponse(String str) {
+		String utString;
+		JSONObject jObject;
+		try {
+			jObject = new JSONObject(str);
+			//JSONObject data = jObject.getJSONObject("data"); // get data object
+			//String projectname = data.getString("name"); // get the name from data.
+            JSONArray jsonPersonData = (JSONArray) jObject.get("monitors");
+            for (int i=0; i<jsonPersonData.length(); i++) {
+                JSONObject item = jsonPersonData.getJSONObject(i);
+                String name = item.getString("friendly_name");
+                Integer status = item.getInt("status");
+                //System.out.println(name+ " /STATUS:" + UrlValidatorUtil.getUTStatus(status));
+                utString = name+ " /STATUS:" + UrlValidatorUtil.getUTStatus(status);
+                //pegando tempo do status
+                JSONArray jsonLogs = (JSONArray) item.get("logs");
+                JSONObject itemLog = jsonLogs.getJSONObject(0);
+                utString += " /Duração: " + UrlValidatorUtil.getLogDuration(itemLog.getInt("duration"));
+                System.out.println(utString);
+            }	            
+	        
+			
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Usando simple 
+	 */
+	/*public void ReadinTXTFile() {
+		 	JSONObject monitor = null;
+	        JSONParser parser = new JSONParser();
+
+	        try {
+
+	            Object obj = parser.parse(new FileReader("C:\\Users\\rhbisterco\\Downloads\\data.json"));
+
+	            JSONObject jsonObject = (JSONObject) obj;
+	            System.out.println(jsonObject);
+
+	            // loop array
+	            JSONArray msg = (JSONArray) jsonObject.get("monitors");
+	            //Iterator<String> iterator = msg.iterator();
+	            Iterator<Object> iterator = msg.iterator();
+	            while (iterator.hasNext()) {
+	                //System.out.println(iterator.next());
+	            	monitor = (JSONObject) iterator.next();
+	            	System.out.println(monitor.get("friendly_name")+ "/STATUS:" + monitor.get("status"));
+
+	            }
+
+	        } catch (FileNotFoundException e) {
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        //} catch (ParseException e) {
+	        //    e.printStackTrace();
+	        } catch (org.json.simple.parser.ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+	    }
+	*/
+	
+	
 }
