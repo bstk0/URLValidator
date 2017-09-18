@@ -37,7 +37,7 @@ public class UrlValidatorUtil {
 
         //System.out.println("The time entered in hours,minutes and seconds is:");
         //System.out.println(hours  + " hours :" + minutes + " minutes:" + seconds_output +" seconds");
-        return hours  + " hours :" + minutes + " minutes:" + seconds_output +" seconds";
+        return hours  + " hours : " + minutes + " minutes: " + seconds_output +" seconds";
 
 	}
 

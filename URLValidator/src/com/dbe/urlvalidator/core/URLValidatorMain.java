@@ -3,12 +3,12 @@ package com.dbe.urlvalidator.core;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,14 +31,20 @@ public class URLValidatorMain {
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		Date date = new Date();
 		System.out.println("INÍCIO: " + dateFormat.format(date)); //2016/11/16 12:08:43
-		
+		long startTime = System.currentTimeMillis();
+
 		System.out.println("main");
 		try {
 			new URLValidatorMain().URLTest();
 			new URLValidatorMain().getUptimeApiData();
 			// OK - new URLValidatorMain().ReadinTXTFile();
-			date = new Date();
-			System.out.println("FIM: " + dateFormat.format(date)); //2016/11/16 12:08:43
+			Date dateFim = new Date();
+			System.out.println("FIM: " + dateFormat.format(dateFim)); //2016/11/16 12:08:43
+			long elapsed = System.currentTimeMillis() - startTime;
+			//System.out.println("TEMPO GASTO: " + UrlValidatorUtil.convertSecondsToHMmSs(endTime - startTime));
+			DateFormat df = new SimpleDateFormat("HH 'hours', mm 'mins,' ss 'seconds'");
+			df.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+			System.out.println("TEMPO GASTO: " + df.format(new Date(elapsed)));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -172,8 +178,11 @@ public class URLValidatorMain {
 
 
 	public void getJsonResponse(String str) {
-		String utString;
+		//String utString;
 		JSONObject jObject;
+		//Formatter fmt = new Formatter();
+		String format = "|%1$-30s|%2$-10s|%3$-30s|\n";
+		System.out.format(format,"NOME","STATUS","DURAÇÃO");
 		try {
 			jObject = new JSONObject(str);
 			//JSONObject data = jObject.getJSONObject("data"); // get data object
@@ -184,12 +193,14 @@ public class URLValidatorMain {
                 String name = item.getString("friendly_name");
                 Integer status = item.getInt("status");
                 //System.out.println(name+ " /STATUS:" + UrlValidatorUtil.getUTStatus(status));
-                utString = name+ " /STATUS:" + UrlValidatorUtil.getUTStatus(status);
+                //utString = name+ " /STATUS:" + UrlValidatorUtil.getUTStatus(status);
                 //pegando tempo do status
                 JSONArray jsonLogs = (JSONArray) item.get("logs");
                 JSONObject itemLog = jsonLogs.getJSONObject(0);
-                utString += " /Duração: " + UrlValidatorUtil.getLogDuration(itemLog.getInt("duration"));
-                System.out.println(utString);
+                Integer logDuaration = itemLog.getInt("duration");
+                //utString += " /Duração: " + UrlValidatorUtil.getLogDuration(logDuaration);
+                //System.out.println(utString);
+                System.out.format(format,name,UrlValidatorUtil.getUTStatus(status),UrlValidatorUtil.getLogDuration(logDuaration));
             }	            
 	        
 			
